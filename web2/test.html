@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+
+        const user = [
+            { name: 'Jennifer Lee', age: '18', sex: 'male' },
+            { name: 'kw', age: '14', sex: 'male' },
+            { name: 'hg', age: '27', sex: 'male' },
+            { name: 'jg', age: '19', sex: 'male' },
+            { name: 'dr', age: '18', sex: 'male' },
+            { name: 'kr', age: '11', sex: 'male' },
+            { name: 'sm', age: '22', sex: 'female' },
+            { name: 'mt', age: '13', sex: 'female' },
+            { name: 'rr', age: '12', sex: 'female' },
+            { name: 'kr', age: '17', sex: 'female' }
+        ]
+        function objArrayFilter(array) {
+            let newArray = []
+            user.filter((item, index) => {
+                if (parseInt(item.age, 10) >= 18 && item.sex === 'male') {
+                    let { name, age } = item
+                    newArray.push({ name, age })
+                }
+            })
+            return newArray
+        }
+        // console.log(objArrayFilter(user))
+let sleep = async function(time = 1000) {
+    return new Promise(resolve => {
+        setTimeout(resolve, time)
+    })
+}
+        sleep()
+    </script>
+</body>
+
+</html>
