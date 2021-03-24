@@ -22,34 +22,28 @@
             icon="el-icon-search"
           ></el-button>
         </el-input>
-        <el-button type="success" @click="showAddUserDialog()"
-          >添加用户</el-button
+        <el-button type="success" @click="showAddGoodsDialog()"
+          style="margin-left:10px">添加用户</el-button
         >
       </el-col>
     </el-row>
     <!-- 3.表格 -->
-    <el-table :data="userList" style="width: 100%">
+    <el-table :data="goods" style="width: 100%">
       <el-table-column type="index" label="#"></el-table-column>
-      <el-table-column prop="username" label="姓名"> </el-table-column>
-      <el-table-column prop="email" label="邮箱"> </el-table-column>
-      <el-table-column prop="mobile" label="电话"> </el-table-column>
-      <el-table-column label="创建时间">
+      <el-table-column prop="goods_name" label="商品名称"> </el-table-column>
+      <el-table-column prop="goods_price" label="商品价格（元）"> </el-table-column>
+      <el-table-column prop="goods_weight" label="商品重量"> </el-table-column>
+      <el-table-column label="添加时间">
         <template slot-scope="scope">
-          {{ scope.row.create_time | fmtdate }}
+          {{ scope.row.add_time | fmtdate }}
         </template>
       </el-table-column>
-      <el-table-column label="用户状态">
+      <el-table-column label="更新时间">
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.mg_state"
-            active-color="#13c366"
-            inactive-color="#ff4949"
-            @change="changeMgState(scope.row)"
-          >
-          </el-switch>
+          {{ scope.row.upd_time | fmtdate }}
         </template>
       </el-table-column>
-      <el-table-column prop="date" label="操作">
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -89,24 +83,30 @@
       :total="total"
     >
     </el-pagination>
-    <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
+    <el-dialog title="添加商品" :visible.sync="dialogFormVisibleAdd">
       <el-form :model="form">
-        <el-form-item label="用户名" label-width="100px">
-          <el-input v-model="form.username" autocomplete="off"></el-input>
+        <el-form-item label="商品名称" label-width="100px">
+          <el-input v-model="form.goods_name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" label-width="100px">
           <el-input v-model="form.password" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" label-width="100px">
-          <el-input v-model="form.email" autocomplete="off"></el-input>
+        <el-form-item label="价格" label-width="100px">
+          <el-input v-model="form.goods_price" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="电话" label-width="100px">
-          <el-input v-model="form.mobile" autocomplete="off"></el-input>
+        <el-form-item label="数量" label-width="100px">
+          <el-input v-model="form.goods_number" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="重量" label-width="100px">
+          <el-input v-model="form.goods_weight" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="介绍" label-width="100px">
+          <el-input v-model="form.goods_introduce" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
-        <el-button type="primary" @click="addUser()">确 定</el-button>
+        <el-button type="primary" @click="addGood()">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑用户" :visible.sync="dialogFormVisibleEdit">
@@ -161,6 +161,8 @@ export default {
       currentUsername: '',
       currentRoleId:-1,
       currentUserId:-1,
+      goods: [{}],
+
       userList: [
         {
           date: "2016-05-02",
@@ -201,20 +203,20 @@ export default {
     };
   },
   created() {
-    this.getUserList();
+    this.getGoodslist();
   },
   methods: {
-    async getUserList() {
+    async getGoodslist() {
       const res = await this.$http.get(
-        `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`
+        `goods?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`
       );
       console.log(res);
       const {
         meta: { status, msg },
-        data: { users, total },
+        data: { goods, total },
       } = res.data;
       if (status === 200) {
-        this.userList = users;
+        this.goods = goods;
         this.total = total;
         this.$message.success(msg);
       } else {
@@ -225,29 +227,26 @@ export default {
       console.log(`每页 ${val} 条`);
       this.pagesize = val;
       // this.pagenum = 1
-      this.getUserList();
+      this.getGoodslist();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
       this.pagenum = val;
-      this.getUserList();
+      this.getGoodslist();
     },
     searchUser() {
-      this.getUserList();
+      this.getGoodslist();
     },
-    async addUser() {
-      this.$http.defaults.headers.common[
-        "Authorization"
-      ] = localStorage.getItem("token");
+    async addGood() {
       this.dialogFormVisibleAdd = false;
-      const res = await this.$http.post("users", this.form);
+      const res = await this.$http.post("goods", this.form);
       const {
         meta: { msg, status },
         data,
       } = res.data;
       if (status === 201) {
         this.$message.success(msg);
-        this.getUserList();
+        this.getGoodslist();
         this.form = {};
         console.log(data);
       } else {
@@ -282,7 +281,7 @@ export default {
           });
         });
     },
-    showAddUserDialog(){
+    showAddGoodsDialog(){
       this.dialogFormVisibleAdd = true
       this.from = {}
     },
